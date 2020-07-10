@@ -46,6 +46,6 @@ namespace XML_Converter
                 throw new Exception($"The file with directory {path} is not in the correct format.");
             }
 
-        }gkbflgk
+        }
     }
 }
