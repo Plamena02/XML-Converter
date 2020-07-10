@@ -31,19 +31,19 @@ namespace XML_Converter
         {
             if (!(File.Exists(@path)))
             {
-                throw new Exception("File does not exist.");
+                throw new Exception($"The file with directory {path} does not exist.");
             }
 
             if (new FileInfo(@path).Length == 0)
             {
-                throw new Exception("File is empty.");
+                throw new Exception($"The file with directory {path} is empty.");
             }
 
             string extension = Path.GetExtension(@path);
             
             if (extension != ".txt")
             {
-                throw new Exception("The file isn’t in the correct format.");
+                throw new Exception($"The file with directory {path} is not in the correct format.");
             }
 
         }
