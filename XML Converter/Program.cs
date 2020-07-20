@@ -14,8 +14,9 @@ namespace XML_Converter
         static void Main(string[] args)
         {
             // get parameters from command line
-            var parameters = GetParameters(args);
-
+            var arr = new string[] {Console.ReadLine()};
+            var parameters = GetParameters(arr); 
+           
             // the file with data
             string path1 = @parameters[0];
 
@@ -34,7 +35,7 @@ namespace XML_Converter
             }
             else
             {
-                path3 = Directory.GetCurrentDirectory();
+                path3 = Directory.GetCurrentDirectory();        //have to be changed
             }
 
             // check if everything is all right with the file
@@ -53,9 +54,13 @@ namespace XML_Converter
                 HelpCommand();
             }
 
+            // have to fix the separator
+            var separators = new string[] { "/config:", "/input:", "/output:", "onfig", "nput", "utput","/c", "/i", "/o", "-c", "-i", "-o", "--c", "--i", "--o","/", "-", "--", "c:", "i:", "o:", " "};
+            var list = string.Join("", args).Split(separators, '"', StringSplitOptions.RemoveEmptyEntries).ToList();
+
             try
             {   
-                if (args.Length < 4)
+                if (list.Count < 2)
                 {
                     ExitNumber = 1;
                     throw new Exception("Parameters are missing. Please enter at least two parameters.");
@@ -65,23 +70,15 @@ namespace XML_Converter
             {
                 Console.WriteLine(e);
             }
-            
-            var list = new List<string> { };
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (i%2!=0)
-                {
-                    list.Add(args[i]);
-                }
-            }
-
+             
             return list;
         }
 
         private static void HelpCommand()
         {
-            throw new NotImplementedException();
+            // Please help me with that part!!!
+
+            //DIR[drive:][path][filename]
         }
 
         private static void ServiceabilityCheck(string path)
