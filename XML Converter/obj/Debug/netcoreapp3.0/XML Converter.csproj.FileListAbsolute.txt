@@ -1,0 +1,13 @@
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.exe
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.deps.json
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.runtimeconfig.json
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.runtimeconfig.dev.json
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.dll
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\bin\Debug\netcoreapp3.0\XML Converter.pdb
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.csprojAssemblyReference.cache
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.AssemblyInfoInputs.cache
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.AssemblyInfo.cs
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.csproj.CoreCompileInputs.cache
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.dll
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.pdb
+D:\NIKE\Stazhant\Plamena\GitHub\XML-Convertor\XML Converter\obj\Debug\netcoreapp3.0\XML Converter.genruntimeconfig.cache

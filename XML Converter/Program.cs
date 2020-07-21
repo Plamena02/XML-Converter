@@ -11,19 +11,19 @@ namespace XML_Converter
 
         public static int ExitNumber = 0;
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            // get parameters from command line
-            var arr = new string[] { Console.ReadLine() };
-            var parameters = GetParameters(arr);
+            // get parameters from command line (IVB: only as a test, then replace with string[] args)
+            //var arr = new string[] { Console.ReadLine() };
+            var parameters = GetParameters(args);
 
-            // the file with data
+            // the file with data - IVB: check if parameter is available
             string path1 = @parameters[0];
 
             // check if everything is all right with the file
             ServiceabilityCheck(path1);
 
-            // the file to be processed
+            // the file to be processed - IVB: check if parameter is available
             string path2 = @parameters[1];
 
             // the place for extraction
@@ -47,6 +47,8 @@ namespace XML_Converter
             {
                 ServiceabilityCheck(dir);
             }
+
+            return ExitNumber; // tool must return a value
         }
 
         private static void CheckForFreeSpace(string filePath, string driveName)
@@ -78,10 +80,13 @@ namespace XML_Converter
 
         private static List<string> GetParameters(string[] args)
         {
-            if (args[0] == "dir/?" || args[0] == "dir-?")
+            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") // help needed
             {
                 HelpCommand();
             }
+
+            // IVB: You must choose only one syntax -> "param:value" or "param" "value"
+            //                                         and only one parameter marker - "/", "-", or "--"
 
             var separators = new string[] { "/", "config:", "input:", "output:", "config", "input", "output", "c:", "i:", "o:", "-", "--", "\"", " " };
             var a = string.Join("", args);
@@ -109,10 +114,20 @@ namespace XML_Converter
             return list;
         }
 
+        // IVB: could be placed in parameter controller class
         private static void HelpCommand()
         {
-            // Please help me with that part!!!
-            //DIR[drive:][path][filename]
+            string[] info =
+            {
+                "Syntax: XML_Converter /parameter:value...",
+                "\t/config, /c\tconfiguration file, mandatory",
+                "\t/input, /i\tinput archive file, mandatory",
+                "\t/output, /o\toutput folder, defaults to current folder"
+            };
+            foreach(string ln in info)
+            {
+                Console.WriteLine(ln);
+            }
         }
 
         private static void ServiceabilityCheck(string path)
