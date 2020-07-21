@@ -14,9 +14,9 @@ namespace XML_Converter
         static void Main(string[] args)
         {
             // get parameters from command line
-            var arr = new string[] {Console.ReadLine()};
-            var parameters = GetParameters(arr); 
-           
+            var arr = new string[] { Console.ReadLine() };
+            var parameters = GetParameters(arr);
+
             // the file with data
             string path1 = @parameters[0];
 
@@ -55,8 +55,14 @@ namespace XML_Converter
             }
 
             // have to fix the separator
-            var separators = new string[] { "/config:", "/input:", "/output:", "onfig", "nput", "utput","/c", "/i", "/o", "-c", "-i", "-o", "--c", "--i", "--o","/", "-", "--", "c:", "i:", "o:", " "};
-            var list = string.Join("", args).Split(separators, '"', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            var separators = new string[] { "/", "config:", "input:", "output:", "config", "input", "output", "c:", "i:", "o:", "-", "--", "\"", " " };
+            var a = string.Join("", args);
+            if (a.Contains("config") == false && a.Contains("/c:") == false && a.Contains("-c:") == false && a.Contains("--c:") == false) 
+            {
+                separators = new string[] { "/c", "/i", "/o", "-c", "-i", "-o", "--c", "--i", "--o", "\"", " " };
+            }
+            var list = a.Split( separators, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             try
             {   
