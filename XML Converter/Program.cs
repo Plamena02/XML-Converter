@@ -35,15 +35,44 @@ namespace XML_Converter
             }
             else
             {
-                path3 = Directory.GetCurrentDirectory();        //have to be changed
+                path3 = Directory.GetCurrentDirectory();    
             }
 
+            var disk = $"{path3[0]}{path3[1]}";
+            CheckForFreeSpace(@path2, disk);
             // check if everything is all right with the file
             ZipFile.ExtractToDirectory(@path2, $@"{path3}\Files");
             string[] dirs = Directory.GetFiles($@"{path3}\Files\");
             foreach (string dir in dirs)
             {
                 ServiceabilityCheck(dir);
+            }
+        }
+
+        private static void CheckForFreeSpace(string filePath, string driveName)
+        {
+            long fileLength = new System.IO.FileInfo(filePath).Length;
+
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                try
+                {
+                    if (drive.IsReady && drive.Name == driveName)
+                    {
+                        var freeSpace = drive.TotalFreeSpace;
+                        if (freeSpace < fileLength)
+                        {
+                            throw new Exception("There is not enough disk space.");
+                        }
+                    }
+
+                    throw new Exception("The disk was not found");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                
             }
         }
 
@@ -54,14 +83,14 @@ namespace XML_Converter
                 HelpCommand();
             }
 
-            // have to fix the separator
-
             var separators = new string[] { "/", "config:", "input:", "output:", "config", "input", "output", "c:", "i:", "o:", "-", "--", "\"", " " };
             var a = string.Join("", args);
+
             if (a.Contains("config") == false && a.Contains("/c:") == false && a.Contains("-c:") == false && a.Contains("--c:") == false) 
             {
                 separators = new string[] { "/c", "/i", "/o", "-c", "-i", "-o", "--c", "--i", "--o", "\"", " " };
             }
+
             var list = a.Split( separators, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             try
@@ -83,7 +112,6 @@ namespace XML_Converter
         private static void HelpCommand()
         {
             // Please help me with that part!!!
-
             //DIR[drive:][path][filename]
         }
 
