@@ -67,8 +67,11 @@ namespace XML_Converter
                             throw new Exception("There is not enough disk space.");
                         }
                     }
-
-                    throw new Exception("The disk was not found");
+                    else
+                    {
+                        throw new Exception("The disk was not found");
+                    }
+                    
                 }
                 catch (Exception e)
                 {
@@ -80,22 +83,13 @@ namespace XML_Converter
 
         private static List<string> GetParameters(string[] args)
         {
-            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") // help needed
+            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") 
             {
                 HelpCommand();
             }
 
-            // IVB: You must choose only one syntax -> "param:value" or "param" "value"
-            //                                         and only one parameter marker - "/", "-", or "--"
-
-            var separators = new string[] { "/", "config:", "input:", "output:", "config", "input", "output", "c:", "i:", "o:", "-", "--", "\"", " " };
+            var separators = new string[] { "/config", "/input", "/output", "/c", "/i", "/o", "\"", " " };
             var a = string.Join("", args);
-
-            if (a.Contains("config") == false && a.Contains("/c:") == false && a.Contains("-c:") == false && a.Contains("--c:") == false) 
-            {
-                separators = new string[] { "/c", "/i", "/o", "-c", "-i", "-o", "--c", "--i", "--o", "\"", " " };
-            }
-
             var list = a.Split( separators, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             try
