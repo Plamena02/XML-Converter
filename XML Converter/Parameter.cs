@@ -14,6 +14,7 @@ namespace XML_Converter
 
         public Parameter(int num, string value)
         {
+            /* IVB: No need to check for individual values
             if (num == 1)
             {
                 Name = Names.config.ToString();
@@ -26,9 +27,18 @@ namespace XML_Converter
             {
                 Name = Names.output.ToString();
             }
+            */
+            Name = Enum.GetName(typeof(Names), num);
             Value = value;
         }
 
+        // IVB: could be replaced with the following, where calling could be both "new Parameter(<enum>, <value>)"
+        //                                            and "new Parameter((Names)<int-number>, <value>)"
+        public Parameter(Names type, string value)
+        {
+            Name = type.ToString();
+            Value = value;
+        }
 
     }
 }

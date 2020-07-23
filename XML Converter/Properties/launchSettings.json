@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "XML Converter": {
+      "commandName": "Project",
+      "commandLineArgs": "/c gogo"
+    }
+  }
+}

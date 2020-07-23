@@ -113,7 +113,7 @@ namespace XML_Converter
         {
             string[] info =
             {
-                "Syntax: XML_Converter /parameter:value...",
+                "Syntax: XML_Converter /parameter value...",
                 "\t/config, /c\tconfiguration file, mandatory",
                 "\t/input, /i\tinput archive file, mandatory",
                 "\t/output, /o\toutput folder, defaults to current folder"
