@@ -6,4 +6,8 @@
     <RootNamespace>XML_Converter</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+  </ItemGroup>
+
 </Project>

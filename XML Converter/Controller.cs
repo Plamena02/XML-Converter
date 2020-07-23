@@ -4,7 +4,13 @@ using System.Text;
 
 namespace XML_Converter
 {
-    class Controller
+    public class Controller
     {
+        public List<Parameter> Parameters;
+
+        public Controller()
+        {
+            Parameters = new List<Parameter>();
+        }
     }
 }
