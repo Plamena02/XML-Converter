@@ -14,20 +14,6 @@ namespace XML_Converter
 
         public Parameter(int num, string value)
         {
-            /* IVB: No need to check for individual values
-            if (num == 1)
-            {
-                Name = Names.config.ToString();
-            }
-            else if (num == 2)
-            {
-                Name = Names.input.ToString();
-            }
-            else
-            {
-                Name = Names.output.ToString();
-            }
-            */
             Name = Enum.GetName(typeof(Names), num);
             Value = value;
         }

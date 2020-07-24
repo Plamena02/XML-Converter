@@ -16,7 +16,7 @@ namespace XML_Converter
             // get parameters from command line (IVB: only as a test, then replace with string[] args)
             //var arr = new string[] { Console.ReadLine() };
             var parameters = GetParameters(args);
-
+             
             // the file with data - IVB: check if parameter is available
             string path1 = @parameters[0];
 
@@ -97,7 +97,7 @@ namespace XML_Converter
                 if (list.Count < 2)
                 {
                     ExitNumber = 1;
-                    throw new Exception("Parameters are missing. Please enter at least two parameters.");
+                    throw new Exception("Parameters are missing. Please enter at least two parameters."); 
                 }
             }
             catch (Exception e)
