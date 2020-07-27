@@ -9,11 +9,40 @@ namespace XML_Converter
     class Program
     {
 
-        public static int ExitNumber = 0;
+        public enum ExitCode {
+            EXIT_OK = 0,
+            EXIT_NO_PARAMETERS,
+            EXIT_INVALID_FILES,
+            EXIT_ERROR
+        };
 
         static int Main(string[] args)
         {
-            // get parameters from command line (IVB: only as a test, then replace with string[] args)
+            Controller paramControl = new Controller(args);
+            if (paramControl.NeedHelp())
+            {
+                paramControl.ShowHelp();
+                return (int)ExitCode.EXIT_NO_PARAMETERS;
+            }
+
+            if (!paramControl.LoadParameters())
+            {
+                return (int)ExitCode.EXIT_NO_PARAMETERS;
+            }
+
+            string config = paramControl.GetParam(ParamNames.config);
+            // TODO: load config
+            // if not - return EXIT_INVALID_FILES
+
+            string archive = paramControl.GetParam(ParamNames.input);
+            string workdir = paramControl.GetParam(ParamNames.output);
+            // TODO: check files for existence - ZIP, output dir; check disk space to unpack archive
+            // if not - return EXIT_INVALID_FILES
+
+            // TODO: process each file
+            // on error - return EXIT_ERROR
+
+/*
             //var arr = new string[] { Console.ReadLine() };
             var parameters = GetParameters(args);
              
@@ -47,8 +76,8 @@ namespace XML_Converter
             {
                 ServiceabilityCheck(dir);
             }
-
-            return ExitNumber; // tool must return a value
+*/
+            return (int)ExitCode.EXIT_OK;
         }
 
         private static void CheckForFreeSpace(string filePath, string driveName)
@@ -83,15 +112,15 @@ namespace XML_Converter
 
         private static List<string> GetParameters(string[] args)
         {
-            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") 
+/*            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") 
             {
                 HelpCommand();
             }
-
+*/
             var separators = new string[] { "/config", "/input", "/output", "/c", "/i", "/o", "\"", " " };
             var a = string.Join("", args);
             var list = a.Split( separators, StringSplitOptions.RemoveEmptyEntries).ToList();
-
+/*
             try
             {   
                 if (list.Count < 2)
@@ -104,7 +133,7 @@ namespace XML_Converter
             {
                 Console.WriteLine(e);
             }
-             
+ */            
             return list;
         }
 
@@ -126,7 +155,7 @@ namespace XML_Converter
 
         private static void ServiceabilityCheck(string path)
         {
-            try
+/*            try
             {
                 if (!(File.Exists(@path)))
                 {
@@ -152,6 +181,6 @@ namespace XML_Converter
             {
                 Console.WriteLine(e);
             }             
-        }
+ */       }
     }
 }
