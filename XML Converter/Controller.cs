@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace XML_Converter
 {
@@ -42,10 +43,20 @@ namespace XML_Converter
             {
                 ParamNames type;
                 string name = args[2 * i];
-                if (!Enum.TryParse(name, false, out type))
+                bool failed = name[0] != '/';
+                if (!failed)
                 {
-                    Console.WriteLine($"Invalid parameter passed - {name}");
-                    return false;
+                    name = name.Substring(1); // trim first '/'
+                }
+                if (failed || !Enum.TryParse(name, false, out type))
+                {
+                    ParamShortNames sh;
+                    if (failed || !Enum.TryParse(name, false, out sh))
+                    {
+                        Console.WriteLine($"Invalid parameter passed - {name}");
+                        return false;
+                    }
+                    type = (ParamNames)(int)sh;
                 }
                 Parameter prm = FindParam(type);
                 string val = args[2 * i + 1];
@@ -63,8 +74,8 @@ namespace XML_Converter
             {
                 if (FindParam(m) == null)
                 {
-                    ret = false;
                     Console.WriteLine($"Missing mandatory parameter - {m.ToString()}");
+                    ret = false;
                 }
             }
             return ret;

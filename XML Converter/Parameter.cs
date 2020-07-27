@@ -5,6 +5,7 @@ using System.Text;
 namespace XML_Converter
 {
     public enum ParamNames { config, input, output };
+    public enum ParamShortNames { c, i, o };
 
     public class Parameter
     {
