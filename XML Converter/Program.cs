@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace XML_Converter
 {
@@ -31,156 +32,86 @@ namespace XML_Converter
             }
 
             string config = paramControl.GetParam(ParamNames.config);
+            if (!(File.Exists(@config)) || ServiceAbilityCheck(config) == false)
+            {
+                return (int)ExitCode.EXIT_INVALID_FILES;
+            }
             // TODO: load config
-            // if not - return EXIT_INVALID_FILES
 
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
+
+            if (!(File.Exists(@archive))||!(File.Exists(@workdir)))
+            {
+                return (int)ExitCode.EXIT_INVALID_FILES;
+            }
+
+            var disk = $"{workdir[0]}{workdir[1]}";
+            if (CheckForFreeSpace(@archive, disk) == false)
+            {
+                return (int)ExitCode.EXIT_INVALID_FILES;
+            }
+
+
+            ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
+            string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
+            foreach (string dir in dirs)
+            {
+                if (ServiceAbilityCheck(dir) == false)
+                {
+                    return (int)ExitCode.EXIT_ERROR;
+                }
+            }
+
             // TODO: check files for existence - ZIP, output dir; check disk space to unpack archive
             // if not - return EXIT_INVALID_FILES
 
             // TODO: process each file
             // on error - return EXIT_ERROR
 
-/*
-            //var arr = new string[] { Console.ReadLine() };
-            var parameters = GetParameters(args);
-             
-            // the file with data - IVB: check if parameter is available
-            string path1 = @parameters[0];
-
-            // check if everything is all right with the file
-            ServiceabilityCheck(path1);
-
-            // the file to be processed - IVB: check if parameter is available
-            string path2 = @parameters[1];
-
-            // the place for extraction
-            string path3 = "";
-
-            if (parameters.Count == 3)
-            {
-                path3 = @parameters[2];
-            }
-            else
-            {
-                path3 = Directory.GetCurrentDirectory();    
-            }
-
-            var disk = $"{path3[0]}{path3[1]}";
-            CheckForFreeSpace(@path2, disk);
-            // check if everything is all right with the file
-            ZipFile.ExtractToDirectory(@path2, $@"{path3}\Files");
-            string[] dirs = Directory.GetFiles($@"{path3}\Files\");
-            foreach (string dir in dirs)
-            {
-                ServiceabilityCheck(dir);
-            }
-*/
             return (int)ExitCode.EXIT_OK;
         }
 
-        private static void CheckForFreeSpace(string filePath, string driveName)
+        private static bool CheckForFreeSpace(string filePath, string driveName)
         {
+            bool ret = true;
             long fileLength = new System.IO.FileInfo(filePath).Length;
 
             foreach (DriveInfo drive in DriveInfo.GetDrives())
             {
-                try
+                if (drive.IsReady && drive.Name == driveName)
                 {
-                    if (drive.IsReady && drive.Name == driveName)
+                    var freeSpace = drive.TotalFreeSpace;
+                    if (freeSpace < fileLength)
                     {
-                        var freeSpace = drive.TotalFreeSpace;
-                        if (freeSpace < fileLength)
-                        {
-                            throw new Exception("There is not enough disk space.");
-                        }
+                        ret = false;
                     }
-                    else
-                    {
-                        throw new Exception("The disk was not found");
-                    }
-                    
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
-                }
-                
+                    ret = false;
+                }                    
             }
+            return ret;  
         }
 
-        private static List<string> GetParameters(string[] args)
+
+        private static bool ServiceAbilityCheck(string path)
         {
-/*            if (args.Length < 2 || args[0] == "/?" || args[0] == "-?") 
+            bool ret = true;
+            if (new FileInfo(@path).Length == 0)
             {
-                HelpCommand();
+                ret = false;
             }
-*/
-            var separators = new string[] { "/config", "/input", "/output", "/c", "/i", "/o", "\"", " " };
-            var a = string.Join("", args);
-            var list = a.Split( separators, StringSplitOptions.RemoveEmptyEntries).ToList();
-/*
-            try
-            {   
-                if (list.Count < 2)
-                {
-                    ExitNumber = 1;
-                    throw new Exception("Parameters are missing. Please enter at least two parameters."); 
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
- */            
-            return list;
-        }
 
-        // IVB: could be placed in parameter controller class
-        private static void HelpCommand()
-        {
-            string[] info =
-            {
-                "Syntax: XML_Converter /parameter value...",
-                "\t/config, /c\tconfiguration file, mandatory",
-                "\t/input, /i\tinput archive file, mandatory",
-                "\t/output, /o\toutput folder, defaults to current folder"
-            };
-            foreach(string ln in info)
-            {
-                Console.WriteLine(ln);
-            }
-        }
-
-        private static void ServiceabilityCheck(string path)
-        {
-/*            try
-            {
-                if (!(File.Exists(@path)))
-                {
-                    ExitNumber = 1;
-                    throw new Exception($"The file with directory {path} does not exist.");
-                }
-
-                if (new FileInfo(@path).Length == 0)
-                {
-                    ExitNumber = 2;
-                    throw new Exception($"The file with directory {path} is empty.");
-                }
-
-                string extension = Path.GetExtension(@path);
+            string extension = Path.GetExtension(@path);
             
-                if (extension != ".txt")
-                {
-                    ExitNumber = 2;
-                    throw new Exception($"The file with directory {path} is not in the correct format.");
-                }
-            }
-            catch (Exception e)
+            if (extension != ".txt")
             {
-                Console.WriteLine(e);
-            }             
- */       }
+                ret = false;
+            }
+
+            return ret;        
+        }
     }
 }
