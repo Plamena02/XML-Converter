@@ -9,7 +9,6 @@ namespace XML_Converter
 {
     class Program
     {
-
         public enum ExitCode {
             EXIT_OK = 0,
             EXIT_NO_PARAMETERS,
@@ -36,7 +35,6 @@ namespace XML_Converter
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
-            // TODO: load config
 
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
@@ -52,7 +50,6 @@ namespace XML_Converter
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
-
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
             string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
             foreach (string dir in dirs)
@@ -62,12 +59,6 @@ namespace XML_Converter
                     return (int)ExitCode.EXIT_ERROR;
                 }
             }
-
-            // TODO: check files for existence - ZIP, output dir; check disk space to unpack archive
-            // if not - return EXIT_INVALID_FILES
-
-            // TODO: process each file
-            // on error - return EXIT_ERROR
 
             return (int)ExitCode.EXIT_OK;
         }
@@ -94,7 +85,6 @@ namespace XML_Converter
             }
             return ret;  
         }
-
 
         private static bool ServiceAbilityCheck(string path)
         {
