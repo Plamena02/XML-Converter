@@ -27,5 +27,11 @@ namespace XML_Converter
             Name = Enum.GetName(typeof(ParamNames), num);
             Value = value;
         }
+
+        public Parameter(ParamShortNames type, string value)
+        {
+            Name = type.ToString();
+            Value = value;
+        }
     }
 }
