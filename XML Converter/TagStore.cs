@@ -23,7 +23,7 @@ namespace XML_Converter
         public TagStore(string path)
         {
             FileNames = new List<string>();
-            FileTags = new List<Tag[]>();
+            FileTags = new List<Tag[]> {File1, File2, File3, File4, File5, File6, File7, File8, File9};
         }
 
         public bool LoadFile(string path)
@@ -46,7 +46,6 @@ namespace XML_Converter
         }
 
 
-
         public int CheckName(string name)
         {  
             var ret = -1;
@@ -63,15 +62,39 @@ namespace XML_Converter
         public Tag CheckTag(Tag tag, int index)
         {
 
-            for (int i = 0; i < FileTags.Count; i++)
+            foreach (var t in FileTags[index])
             {
-                if (i == index)
+                if (t == tag)
                 {
-                    var arr = FileTags[i];
+                    return tag;
                 }
             }
-            // to do 
-            return tag;
+            // if the tag was found what is expected to return ?
+        }
+
+        public void SortTags(string path)
+        {
+            string[] lines = System.IO.File.ReadAllLines(@path);
+            var i = 0;
+            var a = 0;
+
+            foreach (var line in lines)
+            {
+                if (line.Contains(".txt"))
+                {
+                    var name = line.Substring(6,10);
+                    FileNames.Add(name);
+                    i++;
+                    a = 0;
+                }
+                else
+                {
+                    var arr = line.Remove(0,12).Split(';');
+                    var tag = new Tag(arr[0], arr[1], arr[2]); 
+                    FileTags[i][a] = tag;
+                    a++;
+                }
+            }
         }
     }
 }
