@@ -31,10 +31,12 @@ namespace XML_Converter
             }
 
             string config = paramControl.GetParam(ParamNames.config);
-            if (!(File.Exists(@config)) || ServiceAbilityCheck(config) == false)
+            TagStore tagStore = new TagStore(config);
+            if (tagStore.LoadFile(config) == false)           
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
+           
 
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
@@ -89,19 +91,20 @@ namespace XML_Converter
         private static bool ServiceAbilityCheck(string path)
         {
             bool ret = true;
+
             if (new FileInfo(@path).Length == 0)
             {
                 ret = false;
             }
 
             string extension = Path.GetExtension(@path);
-            
+
             if (extension != ".txt")
             {
                 ret = false;
             }
 
-            return ret;        
+            return ret;
         }
     }
 }
