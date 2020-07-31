@@ -69,7 +69,7 @@ namespace XML_Converter
                     return tag;
                 }
             }
-            // if the tag was found what is expected to return ?
+            return null;
         }
 
         public void SortTags(string path)
