@@ -32,11 +32,11 @@ namespace XML_Converter
 
             string config = paramControl.GetParam(ParamNames.config);
             TagStore tagStore = new TagStore(config);
-            if (tagStore.LoadFile(config) == false)           
+            if (tagStore.LoadFile() == false)           
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
-           
+            tagStore.ReadFile();
 
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);

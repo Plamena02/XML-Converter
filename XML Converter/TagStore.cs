@@ -10,91 +10,100 @@ namespace XML_Converter
     {
         public List<string> FileNames;
         public List<Tag[]> FileTags;
-        public Tag[] File1 { get; set; }
-        public Tag[] File2 { get; set; }
-        public Tag[] File3 { get; set; }
-        public Tag[] File4 { get; set; }
-        public Tag[] File5 { get; set; }
-        public Tag[] File6 { get; set; }
-        public Tag[] File7 { get; set; }
-        public Tag[] File8 { get; set; }
-        public Tag[] File9 { get; set; }
+        public string FilePath;
 
         public TagStore(string path)
         {
             FileNames = new List<string>();
-            FileTags = new List<Tag[]> {File1, File2, File3, File4, File5, File6, File7, File8, File9};
+            FileTags = new List<Tag[]> ();
+            FilePath = path;
         }
 
-        public bool LoadFile(string path)
+        public bool LoadFile()
         {
             var ret = true;
 
-            if (new FileInfo(@path).Length == 0)
+            if (new FileInfo(@FilePath).Length == 0)
             {
                 ret = false;
             }
 
-            string extension = Path.GetExtension(@path);
+            string extension = Path.GetExtension(@FilePath);
 
             if (extension != ".txt")
             {
                 ret = false;
             }
-
             return ret;
         }
 
-
-        public int CheckName(string name)
-        {  
-            var ret = -1;
-            for (int i = 0; i < FileNames.Count; i++)
-            {
-                if (FileNames[i] == name)
-                {
-                    ret = i;
-                }
-            }
-            return ret;
-        } 
-
-        public Tag CheckTag(Tag tag, int index)
+        public void ReadFile()
         {
-
-            foreach (var t in FileTags[index])
+            string line;
+            System.IO.StreamReader file = new System.IO.StreamReader(@FilePath);
+            var TagList = new List<Tag>();
+            while ((line = file.ReadLine()) != null)
             {
-                if (t == tag)
+                var arr = line.Split('=');
+                if (arr[0].Contains("-"))
                 {
-                    return tag;
-                }
-            }
-            return null;
-        }
-
-        public void SortTags(string path)
-        {
-            string[] lines = System.IO.File.ReadAllLines(@path);
-            var i = 0;
-            var a = 0;
-
-            foreach (var line in lines)
-            {
-                if (line.Contains(".txt"))
-                {
-                    var name = line.Substring(6,10);
-                    FileNames.Add(name);
-                    i++;
-                    a = 0;
+                    var value = arr[1].Split(';');
+                    TagList.Add(new Tag(value[0], value[1], value[2]));
                 }
                 else
                 {
-                    var arr = line.Remove(0,12).Split(';');
-                    var tag = new Tag(arr[0], arr[1], arr[2]); 
-                    FileTags[i][a] = tag;
-                    a++;
+                    FileNames.Add(arr[1]);
+                    if (TagList.Count != 0)
+                    {
+                        int length = 0;
+                        foreach (var tag in TagList)
+                        {
+                            var id = Int32.Parse(tag.Id);
+                            if (id > length)
+                            {
+                                length = id;
+                            }
+                        }
+
+                        var TagArray = new Tag[length + 1];
+                        for (int i = 0; i < TagList.Count; i++)
+                        {
+                            var id = Int32.Parse(TagList[i].Id);
+                            TagArray[id] = TagList[i];
+                        }
+                        FileTags.Add(TagArray);
+                        TagList = new List<Tag>();
+                    }
                 }
             }
+
+            file.Close();
+        }
+
+        public int CheckName(string name)
+        {
+            int index;
+            try
+            {
+               index = FileNames.IndexOf(name);
+            }
+            catch (Exception)
+            {
+                return -1;
+            }
+            return index;
+        } 
+
+        public Tag CheckTag(int index)
+        {
+            foreach (var t in FileTags)
+            {
+                if (t[index] != null)
+                {
+                    return t[index];
+                }
+            }
+            return null;
         }
     }
 }
