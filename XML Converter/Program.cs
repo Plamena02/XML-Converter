@@ -36,7 +36,8 @@ namespace XML_Converter
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
-            tagStore.ReadFile();
+            // IVB: no point of calling it here
+            // tagStore.ReadFile();
 
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
