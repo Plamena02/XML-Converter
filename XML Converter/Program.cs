@@ -94,7 +94,7 @@ namespace XML_Converter
                 }
 
                 XMLFile.Add(new XComment("</table>"));
-                XMLFile.Save(Path.ChangeExtension($@"{workdir}\Output", ".xml"));
+                XMLFile.Save(Path.ChangeExtension($@"{workdir}\XML Files", ".xml"));
             }
            
         }
