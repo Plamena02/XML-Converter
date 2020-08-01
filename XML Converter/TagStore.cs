@@ -43,7 +43,7 @@ namespace XML_Converter
             return ret;
         }
 
-        public int CheckName(string name)
+        public int CheckFileName(string name)
         {
             int index;
             try
