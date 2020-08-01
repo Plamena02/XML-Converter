@@ -35,6 +35,7 @@ namespace XML_Converter
             {
                 ret = false;
             }
+
             if (ret)
             {
                 ReadFile();
@@ -58,17 +59,6 @@ namespace XML_Converter
 
         public Tag CheckTag(int fileIndex, int tagId)
         {
-            /* IVB:
-            foreach (var t in FileTags)
-            {
-                // so complicated, why?
-                if (t[index] != null)
-                {
-                    return t[index];
-                }
-            }
-            return null;
-            */
             try
             {
                 return FileTags[fileIndex][tagId];
@@ -117,14 +107,6 @@ namespace XML_Converter
             int length = 0;
             foreach (var tag in TagList)
             {
-                /* IVB: keep it simple
-
-                var id = Int32.Parse(tag.Id);
-                if (id > length)
-                {
-                    length = id;
-                }
-                */
                 length = Math.Max(length, Int32.Parse(tag.Id));
             }
 
