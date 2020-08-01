@@ -9,10 +9,13 @@ namespace XML_Converter
         public string Id { get; set; }
         public string Value { get; set; }
 
+        public string Definition { get; set; }
+
         public Data(string id, string value)
         {
             Id = id;
             Value = value;
+            Definition = "";
         }
     }
 }
