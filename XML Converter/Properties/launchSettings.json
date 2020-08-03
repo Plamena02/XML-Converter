@@ -2,7 +2,7 @@
   "profiles": {
     "XML Converter": {
       "commandName": "Project",
-      "commandLineArgs": "/c gogo"
+      "commandLineArgs": "/c ..\\..\\..\\..\\data-config.txt /i ..\\..\\..\\..\\data\\subtype910.zip /o ..\\..\\..\\..\\data"
     }
   }
 }

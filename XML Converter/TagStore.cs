@@ -24,7 +24,7 @@ namespace XML_Converter
         {
             var ret = true;
 
-            if (new FileInfo(@FilePath).Length == 0)
+            if (!File.Exists(@FilePath) || new FileInfo(@FilePath).Length == 0) // IVB: check if the file exists before size check
             {
                 ret = false;
             }

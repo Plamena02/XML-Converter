@@ -21,7 +21,11 @@ namespace XML_Converter
             if (parts.Length > 1)
             {
                 Type = parts[0];
-                Length = int.Parse(parts[1]);
+                try // IVB: avoid exception on "Dec(<L>,<D>)" types
+                {
+                    Length = int.Parse(parts[1]);
+                }
+                catch (Exception) { }
             }
         }
     }

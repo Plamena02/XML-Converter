@@ -42,17 +42,19 @@ namespace XML_Converter
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
 
-            if (!(File.Exists(@archive))||!(File.Exists(@workdir)))
+            if (!(File.Exists(@archive))||!(Directory.Exists(@workdir))) // IVB: /output is a folder, not file
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
+            /*
+            // for "/output ..\..\..\..\data" disk is ".." - wrong, use Path.GetFullPath
             var disk = $"{workdir[0]}{workdir[1]}";
             if (CheckForFreeSpace(@archive, disk) == false)
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
-
+            */
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
             string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
             foreach (string dir in dirs)
@@ -158,7 +160,7 @@ namespace XML_Converter
         {
             bool ret = true;
 
-            if (new FileInfo(@path).Length == 0)
+            if (!File.Exists(@path) || new FileInfo(@path).Length == 0) // IVB: check if the file exists before size check
             {
                 ret = false;
             }
