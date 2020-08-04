@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Dynamic;
 using System.Xml.Linq;
+using System.Xml;
 
 namespace XML_Converter
 {
@@ -20,6 +21,8 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
+            //string[] a = Console.ReadLine().Split();
+
             Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
             {
@@ -42,7 +45,7 @@ namespace XML_Converter
             string archive = paramControl.GetParam(ParamNames.input);
             string workdir = paramControl.GetParam(ParamNames.output);
 
-            if (!(File.Exists(@archive))||!(Directory.Exists(@workdir))) // IVB: /output is a folder, not file
+            if (!(File.Exists(@archive))||!(Directory.Exists(@workdir))) 
             {
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
@@ -56,81 +59,72 @@ namespace XML_Converter
             }
             */
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
-            string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
+            string[] dirs = Directory.GetFiles($@"{workdir}\Files");
             foreach (string dir in dirs)
             {
                 if (ServiceAbilityCheck(dir) == false)
                 {
-                    return (int)ExitCode.EXIT_ERROR;
+                    return (int)ExitCode.EXIT_INVALID_FILES;
+                }
+                else
+                {
+                    var DataFileName = dir.Split('\t').Last();
+                    var fileNumber = tagStore.CheckFileName(DataFileName);
+                    if (fileNumber == -1)
+                    {
+                        Console.WriteLine($"This file {DataFileName} was not found."); continue;
+                    }
+                    
+                    ConvertFileToXML(dir, fileNumber, tagStore); 
                 }
             }
-            
-            var dataStores = DataProcessing(dirs, tagStore);
-            CreateXMLFiles(dataStores, workdir);
 
             return (int)ExitCode.EXIT_OK;
         }
 
-        private static void CreateXMLFiles(List<DataStore> dataStores, string workdir)
+        private static void ConvertFileToXML(string dir, int fileNumber, TagStore tagStore)
         {
-            foreach (var dataStore in dataStores)
+            string line;
+            System.IO.StreamReader file = new System.IO.StreamReader(@dir);
+            // create Xml File
+            //XDocument XMLFile = new XmlDocument();
+            //XMLFile.Add(new XElement($"<table name=\"{dataStore.FileName.Replace(".txt","")}\""));
+
+            while ((line = file.ReadLine()) != null)
             {
-                XDocument XMLFile = new XDocument();
-                XMLFile.Add(new XComment($"<table name=\"{dataStore.FileName.Replace(".txt","")}\""));
+                var arr = line.Split('|');
                 var a = 1;
-                foreach (var dataList in dataStore.FileData)
-                {
-                    XMLFile.Add(new XComment($"<record id=\"{a}\">"));
-                    foreach (var data in dataList)
-                    {
-                        if (data.Definition != "")
-                        {
-                            var definition = data.Definition;
-                            var value = data.Value;
-                            XMLFile.Add(new XComment($"<{definition}>{value}</{definition}>"));
-                        }  
-                    }
 
+                if (arr.Length > 1)
+                {
+                    //XMLFile.Add(new XElement($"<record id=\"{a}\">"));
+                    for (int i = 0; i < arr.Length; i++)
+                    {
+                        var element = arr[i].Split('#');
+                        if (element.Length == 2)
+                        {
+                            var id = element[0];
+                            var value = element[1];
+                            var tag = tagStore.CheckTag(fileNumber, Int32.Parse(id));
+
+                            if (tag != null)
+                            {                               
+                                if (tag.Length >= value.Length)
+                                {
+                                    // add XElement to Xml File 
+                                    //XMLFile.Add(new XElement($"<{definition}>{value}</{definition}>"));
+                                }
+                            }                            
+                        }                        
+                    }  
                     a++;
-                    XMLFile.Add(new XComment("</record>"));
+                    //XMLFile.Add(new XElement("</record>"));
                 }
-
-                XMLFile.Add(new XComment("</table>"));
-                XMLFile.Save(Path.ChangeExtension($@"{workdir}\XML Files", ".xml"));
             }
-           
-        }
 
-        private static List<DataStore> DataProcessing(string[] dirs, TagStore tagStore)
-        {
-            var List = new List<DataStore>();
-            foreach (string dir in dirs)
-            {
-                DataStore dataStore = new DataStore(dir);
-                var fileNumber = tagStore.CheckFileName(dataStore.FileName);
-                if (fileNumber == -1)
-                {
-                    Console.WriteLine($"This file {dataStore.FileName} was not found.");
-                }
-                else
-                {
-                    foreach (var dataList in dataStore.FileData)
-                    {
-                        foreach (var item in dataList)
-                        {
-                            var tag = tagStore.CheckTag(fileNumber, Int32.Parse(item.Id));
-                            if (tag != null && tag.Length >= item.Value.Length)
-                            {
-                                item.Definition = tag.Definition;
-                            }
-                        }
-                    }
-                }
+            //XMLFile.Add(new XElement("</table>"));
 
-                List.Add(dataStore);  
-            }
-            
-            return List;
+            file.Close();
         }
 
         private static bool CheckForFreeSpace(string filePath, string driveName)
@@ -160,7 +154,7 @@ namespace XML_Converter
         {
             bool ret = true;
 
-            if (!File.Exists(@path) || new FileInfo(@path).Length == 0) // IVB: check if the file exists before size check
+            if (!File.Exists(@path) || new FileInfo(@path).Length == 0)
             {
                 ret = false;
             }

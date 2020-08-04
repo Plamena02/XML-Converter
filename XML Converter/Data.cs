@@ -11,11 +11,11 @@ namespace XML_Converter
 
         public string Definition { get; set; }
 
-        public Data(string id, string value)
+        public Data(string id, string value, string definition)
         {
             Id = id;
             Value = value;
-            Definition = "";
+            Definition = definition;
         }
     }
 }
