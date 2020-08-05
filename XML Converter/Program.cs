@@ -86,6 +86,7 @@ namespace XML_Converter
 
                     xmlWriter.WriteStartElement("table");
                     xmlWriter.WriteAttributeString("name", name);
+                    //jdfghijho
                     
                     var a = 1;
                     while ((line = file.ReadLine()) != null)
