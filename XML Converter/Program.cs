@@ -51,8 +51,9 @@ namespace XML_Converter
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
+            workdir = Path.GetFullPath(workdir); // IVB: fixup for relative paths
             var disk = $"{workdir[0]}{workdir[1]}{workdir[2]}";
-            
+
             if (CheckForFreeSpace(@archive, disk) == false)
             {
                 return (int)ExitCode.EXIT_ERROR;
