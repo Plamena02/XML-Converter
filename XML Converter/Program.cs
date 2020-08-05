@@ -59,7 +59,7 @@ namespace XML_Converter
             }
 
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
-            string[] dirs = Directory.GetFiles($@"{workdir}\Files");
+            string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
             foreach (string dir in dirs)
             {
                 if (ServiceAbilityCheck(dir) == false)
@@ -68,7 +68,7 @@ namespace XML_Converter
                 }
                 else
                 {
-                    var DataFileName = dir.Split('\t').Last();
+                    var DataFileName = dir.Split("Files").Last().Substring(1);
                     var fileNumber = tagStore.CheckFileName(DataFileName);
                     if (fileNumber == -1)
                     {
@@ -77,22 +77,26 @@ namespace XML_Converter
 
                     string line;
                     System.IO.StreamReader file = new System.IO.StreamReader(@dir);
+
                     // create Xml File
-                    XmlWriter xmlWriter = XmlWriter.Create(DataFileName.Replace(".txt", "") + ".xml");
-
+                    var name = DataFileName.Replace(".txt", "");
+                    XmlWriter xmlWriter = XmlWriter.Create(name + ".xml");
                     xmlWriter.WriteStartDocument();
-                    xmlWriter.WriteEndDocument();
-                    xmlWriter.Close();
-                    //XMLFile.Add(new XElement($"<table name=\"{dataStore.FileName.Replace(".txt","")}\""));
 
+                    xmlWriter.WriteStartElement("table");
+                    xmlWriter.WriteAttributeString("name", name);
+                    
+                    var a = 1;
                     while ((line = file.ReadLine()) != null)
                     {
                         var arr = line.Split('|');
-                        var a = 1;
+                       
 
                         if (arr.Length > 1)
                         {
-                            //XMLFile.Add(new XElement($"<record id=\"{a}\">"));
+                            xmlWriter.WriteStartElement("record");
+                            xmlWriter.WriteAttributeString("id", a.ToString());
+
                             for (int i = 0; i < arr.Length; i++)
                             {
                                 var element = arr[i].Split('#');
@@ -106,19 +110,22 @@ namespace XML_Converter
                                     {
                                         if (tag.Length >= value.Length)
                                         {
-                                            // add XElement to Xml File 
-                                            //XMLFile.Add(new XElement($"<{definition}>{value}</{definition}>"));
+                                            xmlWriter.WriteStartElement(tag.Definition);
+                                            xmlWriter.WriteString(value);
+                                            xmlWriter.WriteEndElement();
                                         }
                                     }
                                 }
-                            }
+                            }                            
+                            xmlWriter.WriteEndElement();
                             a++;
-                            //XMLFile.Add(new XElement("</record>"));
                         }
                     }
 
-                    //XMLFile.Add(new XElement("</table>"));
-
+                    xmlWriter.WriteEndElement(); 
+                    xmlWriter.WriteEndDocument(); 
+                 
+                    xmlWriter.Close();                   
                     file.Close();
                 }
             }
