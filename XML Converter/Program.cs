@@ -8,6 +8,7 @@ using System.Dynamic;
 using System.Xml.Linq;
 using System.Xml;
 
+
 namespace XML_Converter
 {
     class Program
@@ -21,7 +22,7 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
-            //string[] a = Console.ReadLine().Split();
+            //string[] ar = Console.ReadLine().Split();
 
             Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
@@ -50,14 +51,13 @@ namespace XML_Converter
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
-            /*
-            // for "/output ..\..\..\..\data" disk is ".." - wrong, use Path.GetFullPath
-            var disk = $"{workdir[0]}{workdir[1]}";
+            var disk = $"{workdir[0]}{workdir[1]}{workdir[2]}";
+            
             if (CheckForFreeSpace(@archive, disk) == false)
             {
-                return (int)ExitCode.EXIT_INVALID_FILES;
+                return (int)ExitCode.EXIT_ERROR;
             }
-            */
+
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
             string[] dirs = Directory.GetFiles($@"{workdir}\Files");
             foreach (string dir in dirs)
@@ -74,80 +74,81 @@ namespace XML_Converter
                     {
                         Console.WriteLine($"This file {DataFileName} was not found."); continue;
                     }
-                    
-                    ConvertFileToXML(dir, fileNumber, tagStore); 
+
+                    string line;
+                    System.IO.StreamReader file = new System.IO.StreamReader(@dir);
+                    // create Xml File
+                    XmlWriter xmlWriter = XmlWriter.Create(DataFileName.Replace(".txt", "") + ".xml");
+
+                    xmlWriter.WriteStartDocument();
+                    xmlWriter.WriteEndDocument();
+                    xmlWriter.Close();
+                    //XMLFile.Add(new XElement($"<table name=\"{dataStore.FileName.Replace(".txt","")}\""));
+
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        var arr = line.Split('|');
+                        var a = 1;
+
+                        if (arr.Length > 1)
+                        {
+                            //XMLFile.Add(new XElement($"<record id=\"{a}\">"));
+                            for (int i = 0; i < arr.Length; i++)
+                            {
+                                var element = arr[i].Split('#');
+                                if (element.Length == 2)
+                                {
+                                    var id = element[0];
+                                    var value = element[1];
+                                    var tag = tagStore.CheckTag(fileNumber, Int32.Parse(id));
+
+                                    if (tag != null)
+                                    {
+                                        if (tag.Length >= value.Length)
+                                        {
+                                            // add XElement to Xml File 
+                                            //XMLFile.Add(new XElement($"<{definition}>{value}</{definition}>"));
+                                        }
+                                    }
+                                }
+                            }
+                            a++;
+                            //XMLFile.Add(new XElement("</record>"));
+                        }
+                    }
+
+                    //XMLFile.Add(new XElement("</table>"));
+
+                    file.Close();
                 }
             }
 
             return (int)ExitCode.EXIT_OK;
         }
 
-        private static void ConvertFileToXML(string dir, int fileNumber, TagStore tagStore)
+        private static bool CheckForFreeSpace(string zipFile, string driveName)
         {
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(@dir);
-            // create Xml File
-            //XDocument XMLFile = new XmlDocument();
-            //XMLFile.Add(new XElement($"<table name=\"{dataStore.FileName.Replace(".txt","")}\""));
-
-            while ((line = file.ReadLine()) != null)
+            long fileLengths = 0;
+            using (ZipArchive zip = ZipFile.Open(zipFile, ZipArchiveMode.Read))
             {
-                var arr = line.Split('|');
-                var a = 1;
-
-                if (arr.Length > 1)
+                foreach (ZipArchiveEntry entry in zip.Entries)
                 {
-                    //XMLFile.Add(new XElement($"<record id=\"{a}\">"));
-                    for (int i = 0; i < arr.Length; i++)
-                    {
-                        var element = arr[i].Split('#');
-                        if (element.Length == 2)
-                        {
-                            var id = element[0];
-                            var value = element[1];
-                            var tag = tagStore.CheckTag(fileNumber, Int32.Parse(id));
-
-                            if (tag != null)
-                            {                               
-                                if (tag.Length >= value.Length)
-                                {
-                                    // add XElement to Xml File 
-                                    //XMLFile.Add(new XElement($"<{definition}>{value}</{definition}>"));
-                                }
-                            }                            
-                        }                        
-                    }  
-                    a++;
-                    //XMLFile.Add(new XElement("</record>"));
-                }
+                    fileLengths += entry.Length;
+                }            
             }
-
-            //XMLFile.Add(new XElement("</table>"));
-
-            file.Close();
-        }
-
-        private static bool CheckForFreeSpace(string filePath, string driveName)
-        {
-            bool ret = true;
-            long fileLength = new System.IO.FileInfo(filePath).Length;
 
             foreach (DriveInfo drive in DriveInfo.GetDrives())
             {
                 if (drive.IsReady && drive.Name == driveName)
                 {
                     var freeSpace = drive.TotalFreeSpace;
-                    if (freeSpace < fileLength)
+                    if (freeSpace >= fileLengths)
                     {
-                        ret = false;
+                        return true;
                     }
-                }
-                else
-                {
-                    ret = false;
-                }                    
+                }                  
             }
-            return ret;  
+            return false;  
         }
 
         private static bool ServiceAbilityCheck(string path)
