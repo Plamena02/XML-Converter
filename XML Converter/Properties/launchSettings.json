@@ -2,7 +2,7 @@
   "profiles": {
     "XML Converter": {
       "commandName": "Project",
-      "commandLineArgs": "/c ..\\..\\..\\..\\data-config.txt /i ..\\..\\..\\..\\data\\subtype910.zip /o ..\\..\\..\\..\\data"
+      "commandLineArgs": "/c ..\\..\\..\\..\\data-config.txt /i D:\\NIKE\\Stazhant\\Premium_F_2020_07_03.zip /o ..\\..\\..\\..\\data"
     }
   }
 }

@@ -56,23 +56,30 @@ namespace XML_Converter
 
             if (CheckForFreeSpace(@archive, disk) == false)
             {
+                // IVB: TODO - message
                 return (int)ExitCode.EXIT_ERROR;
             }
 
+            // IVB: TODO - start info: start time, definition file, input archive, output folder
+
+            // IVB: TODO - skip use of Files subfolder
             ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
             string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
             foreach (string dir in dirs)
             {
+                // IVB: TODO - check if the unzipped file is in correct format as stated in documentation - start / end lines
                 if (ServiceAbilityCheck(dir) == false)
                 {
+                    // IVB: TODO - message
                     return (int)ExitCode.EXIT_INVALID_FILES;
                 }
                 else
                 {
-                    var DataFileName = dir.Split("Files").Last().Substring(1);
+                    var DataFileName = dir.Split("Files").Last().Substring(1); // IVB: use Path.GetFileName instead
                     var fileNumber = tagStore.CheckFileName(DataFileName);
                     if (fileNumber == -1)
                     {
+                        // IVB: TODO - message for unknown file, return code EXIT_WARNINGS
                         Console.WriteLine($"This file {DataFileName} was not found."); continue;
                     }
 
@@ -107,9 +114,10 @@ namespace XML_Converter
                                     var value = element[1];
                                     var tag = tagStore.CheckTag(fileNumber, Int32.Parse(id));
 
+                                    // IVB: TODO - message for unknown tag (or wrong value length) - return code EXIT_WARNINGS
                                     if (tag != null)
                                     {
-                                        if (tag.Length >= value.Length)
+                                        if (tag.Length >= value.Length) // IVB: warning only, do process tag
                                         {
                                             xmlWriter.WriteStartElement(tag.Definition);
                                             xmlWriter.WriteString(value);
@@ -128,10 +136,13 @@ namespace XML_Converter
                  
                     xmlWriter.Close();                   
                     file.Close();
+
+                    // IVB: TODO - stats - lines/records processed in NNN seconds, input filesize, output filesize
                 }
             }
 
-            return (int)ExitCode.EXIT_OK;
+            // IVB: TODO - stats - end time, N files processed in K min L seconds
+            return (int)ExitCode.EXIT_OK; // IVB: ... or EXIT_WARNINGS
         }
 
         private static bool CheckForFreeSpace(string zipFile, string driveName)
