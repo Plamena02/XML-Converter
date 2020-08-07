@@ -7,7 +7,8 @@ using System.Net.Http.Headers;
 using System.Dynamic;
 using System.Xml.Linq;
 using System.Xml;
-
+using System.Globalization;
+using System.Diagnostics;
 
 namespace XML_Converter
 {
@@ -17,14 +18,17 @@ namespace XML_Converter
             EXIT_OK = 0,
             EXIT_NO_PARAMETERS,
             EXIT_INVALID_FILES,
-            EXIT_ERROR
+            EXIT_ERROR,
+            EXIT_WARNINGS
         };
+
+        public static bool Warnings = false;
 
         static int Main(string[] args)
         {
-            //string[] ar = Console.ReadLine().Split();
+            string[] ar = Console.ReadLine().Split();
 
-            Controller paramControl = new Controller(args);
+            Controller paramControl = new Controller(ar);
             if (paramControl.NeedHelp())
             {
                 paramControl.ShowHelp();
@@ -51,36 +55,46 @@ namespace XML_Converter
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
-            workdir = Path.GetFullPath(workdir); // IVB: fixup for relative paths
+            workdir = Path.GetFullPath(workdir); 
             var disk = $"{workdir[0]}{workdir[1]}{workdir[2]}";
 
             if (CheckForFreeSpace(@archive, disk) == false)
             {
-                // IVB: TODO - message
+                Console.WriteLine($"There is not enough space on the drive ({disk}).");
                 return (int)ExitCode.EXIT_ERROR;
             }
 
-            // IVB: TODO - start info: start time, definition file, input archive, output folder
+            var StartTime = DateTime.Now;
+            Console.WriteLine($"Start Time:{ StartTime.ToString("h:mm:ss tt") } Config name:{Path.GetFileName(config)} Input file name:{Path.GetFileName(archive)} Output directory:{workdir}");
 
-            // IVB: TODO - skip use of Files subfolder
-            ZipFile.ExtractToDirectory(@archive, $@"{workdir}\Files");
-            string[] dirs = Directory.GetFiles($@"{workdir}\Files\");
+            try
+            {
+                ZipFile.ExtractToDirectory(@archive, $@"{workdir}");                
+            }
+            catch (Exception) { Console.WriteLine("Тhe archive files already exist in the given directory."); Warnings = true; }
+            
+            string[] dirs = Directory.GetFiles($@"{workdir}", "*.txt");            
+            var files = 0;
+
             foreach (string dir in dirs)
             {
-                // IVB: TODO - check if the unzipped file is in correct format as stated in documentation - start / end lines
+                var FileName = "";
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
                 if (ServiceAbilityCheck(dir) == false)
                 {
-                    // IVB: TODO - message
+                    Console.WriteLine($"File {dir} does not exist or is not in correct format.");
                     return (int)ExitCode.EXIT_INVALID_FILES;
                 }
                 else
                 {
-                    var DataFileName = dir.Split("Files").Last().Substring(1); // IVB: use Path.GetFileName instead
+                    var DataFileName = Path.GetFileName(dir); 
                     var fileNumber = tagStore.CheckFileName(DataFileName);
                     if (fileNumber == -1)
                     {
-                        // IVB: TODO - message for unknown file, return code EXIT_WARNINGS
-                        Console.WriteLine($"This file {DataFileName} was not found."); continue;
+                        Console.WriteLine($"This file {DataFileName} was not found.");
+                        Warnings = true;
                     }
 
                     string line;
@@ -88,7 +102,11 @@ namespace XML_Converter
 
                     // create Xml File
                     var name = DataFileName.Replace(".txt", "");
-                    XmlWriter xmlWriter = XmlWriter.Create(name + ".xml");
+                    FileName = name + ".xml";
+                    XmlWriterSettings settings = new XmlWriterSettings();
+                    settings.Indent = true;
+                    settings.IndentChars = "\t";
+                    XmlWriter xmlWriter = XmlWriter.Create(FileName,settings);
                     xmlWriter.WriteStartDocument();
 
                     xmlWriter.WriteStartElement("table");
@@ -97,9 +115,13 @@ namespace XML_Converter
                     var a = 1;
                     while ((line = file.ReadLine()) != null)
                     {
+                        if (line.Contains("�"))
+                        {
+                            Console.WriteLine($"Unknown symbol was found on file/line {name}.txt/{a}");
+                            Warnings = true;
+                        }
                         var arr = line.Split('|');
                        
-
                         if (arr.Length > 1)
                         {
                             xmlWriter.WriteStartElement("record");
@@ -114,15 +136,19 @@ namespace XML_Converter
                                     var value = element[1];
                                     var tag = tagStore.CheckTag(fileNumber, Int32.Parse(id));
 
-                                    // IVB: TODO - message for unknown tag (or wrong value length) - return code EXIT_WARNINGS
                                     if (tag != null)
                                     {
-                                        if (tag.Length >= value.Length) // IVB: warning only, do process tag
+                                        if (tag.Length >= value.Length) 
                                         {
                                             xmlWriter.WriteStartElement(tag.Definition);
                                             xmlWriter.WriteString(value);
                                             xmlWriter.WriteEndElement();
                                         }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"Tag was not found or wrong value length on file/line {name}.txt/{a}.");
+                                        Warnings = true;
                                     }
                                 }
                             }                            
@@ -135,15 +161,30 @@ namespace XML_Converter
                     xmlWriter.WriteEndDocument(); 
                  
                     xmlWriter.Close();                   
-                    file.Close();
-
-                    // IVB: TODO - stats - lines/records processed in NNN seconds, input filesize, output filesize
+                    file.Close(); files++;                    
                 }
+
+                long InputLength = new System.IO.FileInfo(@dir).Length;
+                long OutputLength = new System.IO.FileInfo(Path.GetFullPath(FileName)).Length;
+                stopWatch.Stop();
+                var sec = stopWatch.Elapsed;
+
+                Console.WriteLine($"Lines/records processed in {sec.TotalSeconds.ToString(CultureInfo.CreateSpecificCulture("en-GB"))} seconds  Input file size: {InputLength}byte  Output file size: {OutputLength}byte");
             }
 
-            // IVB: TODO - stats - end time, N files processed in K min L seconds
-            return (int)ExitCode.EXIT_OK; // IVB: ... or EXIT_WARNINGS
+            var EndTime = DateTime.Now;
+            TimeSpan span = (EndTime - StartTime);
+
+            Console.WriteLine($"End time:{EndTime.ToString("h:mm:ss tt")} Files {files} processed in {span.Minutes} min {span.Seconds} seconds");
+
+            if (!Warnings)
+            {
+                return (int)ExitCode.EXIT_OK; 
+            }
+
+            return (int)ExitCode.EXIT_WARNINGS;
         }
+
 
         private static bool CheckForFreeSpace(string zipFile, string driveName)
         {
@@ -179,9 +220,17 @@ namespace XML_Converter
                 ret = false;
             }
 
-            string extension = Path.GetExtension(@path);
+            string format = "yyyy-MM-dd HH:mm:ss"; 
+            var date = File.ReadLines(@path).First();
+            var endLine = File.ReadLines(@path).Last();
 
-            if (extension != ".txt")
+            try
+            {
+               DateTime dt = DateTime.ParseExact(date, format, CultureInfo.InvariantCulture);
+            }
+            catch (Exception) { ret = false; }
+
+            if (endLine.Contains("Datensaetze:") == false)
             {
                 ret = false;
             }
