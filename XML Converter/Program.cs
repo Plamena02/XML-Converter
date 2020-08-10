@@ -166,14 +166,14 @@ namespace XML_Converter
                     xmlWriter.Close();                   
                     file.Close(); files++;                    
                 }
-                File.Delete(dir);
-
+               
                 long InputLength = new System.IO.FileInfo(@dir).Length;
                 long OutputLength = new System.IO.FileInfo(Path.GetFullPath(FileName)).Length;
                 stopWatch.Stop();
                 var sec = stopWatch.Elapsed;
 
-                Console.WriteLine($"{lines}lines processed in {Math.Round(sec.TotalSeconds,2)} seconds  Input file size: {ConvertBytesToMegabytes(InputLength)}MB  Output file size: {ConvertBytesToMegabytes(OutputLength)}MB");
+                Console.WriteLine($"{lines} lines processed in {Math.Round(sec.TotalSeconds,2)} seconds  Input file size: {ConvertBytesToMegabytes(InputLength)}MB  Output file size: {ConvertBytesToMegabytes(OutputLength)}MB"); 
+                File.Delete(dir);
             }
 
             var EndTime = DateTime.Now;
@@ -191,7 +191,7 @@ namespace XML_Converter
 
         static double ConvertBytesToMegabytes(long bytes)
         {
-            return (bytes / 1024f) / 1024f;
+            return Math.Round(((bytes / 1024f) / 1024f), 2);
         }
 
         private static bool CheckForFreeSpace(string zipFile, string driveName)
