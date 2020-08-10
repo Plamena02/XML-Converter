@@ -26,9 +26,7 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
-            string[] ar = Console.ReadLine().Split();
-
-            Controller paramControl = new Controller(ar);
+            Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
             {
                 paramControl.ShowHelp();
@@ -81,6 +79,7 @@ namespace XML_Converter
                 var FileName = "";
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
+                var lines = 1;
 
                 if (ServiceAbilityCheck(dir) == false)
                 {
@@ -106,26 +105,25 @@ namespace XML_Converter
                     XmlWriterSettings settings = new XmlWriterSettings();
                     settings.Indent = true;
                     settings.IndentChars = "\t";
-                    XmlWriter xmlWriter = XmlWriter.Create(FileName,settings);
+                    XmlWriter xmlWriter = XmlWriter.Create($@"{workdir}\{FileName}", settings);
                     xmlWriter.WriteStartDocument();
 
                     xmlWriter.WriteStartElement("table");
                     xmlWriter.WriteAttributeString("name", name);
-                    
-                    var a = 1;
+                                        
                     while ((line = file.ReadLine()) != null)
                     {
-                        if (line.Contains("�"))
+                        /*if (line.Contains("�"))
                         {
                             Console.WriteLine($"Unknown symbol was found on file/line {name}.txt/{a}");
                             Warnings = true;
-                        }
+                        }*/
                         var arr = line.Split('|');
                        
                         if (arr.Length > 1)
                         {
                             xmlWriter.WriteStartElement("record");
-                            xmlWriter.WriteAttributeString("id", a.ToString());
+                            xmlWriter.WriteAttributeString("id", lines.ToString());
 
                             for (int i = 0; i < arr.Length; i++)
                             {
@@ -144,16 +142,21 @@ namespace XML_Converter
                                             xmlWriter.WriteString(value);
                                             xmlWriter.WriteEndElement();
                                         }
+                                        else
+                                        {
+                                            Console.WriteLine($"Wrong value length. Expected length up to {tag.Length} characters, but was {value.Length}.");
+                                            Warnings = true;
+                                        }
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"Tag was not found or wrong value length on file/line {name}.txt/{a}.");
+                                        Console.WriteLine($"Tag was not found on line{lines} with id {id}.");
                                         Warnings = true;
                                     }
                                 }
                             }                            
                             xmlWriter.WriteEndElement();
-                            a++;
+                            lines++;
                         }
                     }
 
@@ -163,13 +166,14 @@ namespace XML_Converter
                     xmlWriter.Close();                   
                     file.Close(); files++;                    
                 }
+                File.Delete(dir);
 
                 long InputLength = new System.IO.FileInfo(@dir).Length;
                 long OutputLength = new System.IO.FileInfo(Path.GetFullPath(FileName)).Length;
                 stopWatch.Stop();
                 var sec = stopWatch.Elapsed;
 
-                Console.WriteLine($"Lines/records processed in {sec.TotalSeconds.ToString(CultureInfo.CreateSpecificCulture("en-GB"))} seconds  Input file size: {InputLength}byte  Output file size: {OutputLength}byte");
+                Console.WriteLine($"{lines}lines processed in {Math.Round(sec.TotalSeconds,2)} seconds  Input file size: {ConvertBytesToMegabytes(InputLength)}MB  Output file size: {ConvertBytesToMegabytes(OutputLength)}MB");
             }
 
             var EndTime = DateTime.Now;
@@ -185,6 +189,10 @@ namespace XML_Converter
             return (int)ExitCode.EXIT_WARNINGS;
         }
 
+        static double ConvertBytesToMegabytes(long bytes)
+        {
+            return (bytes / 1024f) / 1024f;
+        }
 
         private static bool CheckForFreeSpace(string zipFile, string driveName)
         {
