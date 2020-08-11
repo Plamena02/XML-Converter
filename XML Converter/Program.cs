@@ -26,6 +26,7 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
+            
             Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
             {
@@ -65,14 +66,10 @@ namespace XML_Converter
             var StartTime = DateTime.Now;
             Console.WriteLine($"Start Time:{ StartTime.ToString("h:mm:ss tt") } Config name:{Path.GetFileName(config)} Input file name:{Path.GetFileName(archive)} Output directory:{workdir}");
 
-            try
-            {
-                ZipFile.ExtractToDirectory(@archive, $@"{workdir}");                
-            }
-            catch (Exception) { Console.WriteLine("Тhe archive files already exist in the given directory."); Warnings = true; }
-            
-            string[] dirs = Directory.GetFiles($@"{workdir}", "*.txt");            
-            var files = 0;
+
+           ZipFile.ExtractToDirectory(@archive, $@"{workdir}",true);                
+           string[] dirs = Directory.GetFiles($@"{workdir}", "*.txt");            
+           var files = 0;
 
             foreach (string dir in dirs)
             {
@@ -111,13 +108,9 @@ namespace XML_Converter
                     xmlWriter.WriteStartElement("table");
                     xmlWriter.WriteAttributeString("name", name);
                                         
-                    while ((line = file.ReadLine()) != null)
+                    while ((line = file.ReadLine()) != null) 
                     {
-                        /*if (line.Contains("�"))
-                        {
-                            Console.WriteLine($"Unknown symbol was found on file/line {name}.txt/{a}");
-                            Warnings = true;
-                        }*/
+
                         var arr = line.Split('|');
                        
                         if (arr.Length > 1)
@@ -138,9 +131,17 @@ namespace XML_Converter
                                     {
                                         if (tag.Length >= value.Length) 
                                         {
-                                            xmlWriter.WriteStartElement(tag.Definition);
-                                            xmlWriter.WriteString(value);
-                                            xmlWriter.WriteEndElement();
+                                            try
+                                            {
+                                                xmlWriter.WriteStartElement(tag.Definition);                                            
+                                                xmlWriter.WriteString(value);
+                                                xmlWriter.WriteEndElement();
+                                            }
+                                            catch (Exception)
+                                            {
+                                                Console.WriteLine($"Unknown symbol was found on line {lines}");
+                                            }
+                                                                                         
                                         }
                                         else
                                         {
