@@ -28,8 +28,8 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
-            var ar = Console.ReadLine().Split();
-            Controller paramControl = new Controller(ar);
+
+            Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
             {
                 paramControl.ShowHelp();
