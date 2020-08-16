@@ -280,7 +280,6 @@ namespace XML_Converter
             return false;
         }
 
-        // ...
         private static bool ServiceAbilityCheck(string path)
         {
             if (!File.Exists(@path) || new FileInfo(@path).Length == 0)
