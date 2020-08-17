@@ -66,7 +66,7 @@ namespace XML_Converter
             }
 
             var StartTime = DateTime.Now;
-            Console.WriteLine($"Start Time:{ StartTime.ToString("HH:mm:ss") }\nConfig name:{Path.GetFileName(config)} Input file name:{Path.GetFileName(archive)} Output directory:{workdir}\n");
+            Console.WriteLine($"Config name:{config} {Path.GetFileName(config)}\nInput file name:{archive} {Path.GetFileName(archive)}\nOutput directory:{workdir}\nStart Time:{ StartTime.ToString("HH:mm:ss") }");
 
             Stopwatch stopWatch1 = new Stopwatch();
             stopWatch1.Start();
@@ -77,7 +77,7 @@ namespace XML_Converter
 
             stopWatch1.Stop();
             var seconds = stopWatch1.Elapsed;
-            Console.WriteLine($"The files were unzipped for {Math.Round(seconds.TotalSeconds, 2)} seconds");
+            Console.WriteLine($"The {dirs.Length} files were unzipped in {Math.Round(seconds.TotalSeconds, 2)} seconds");
 
             foreach (string dir in dirs)
             {
@@ -85,6 +85,7 @@ namespace XML_Converter
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
                 var lines = 1;
+                unknownTag = new Dictionary<string, int>();
 
                 if (ServiceAbilityCheck(dir) == false)
                 {
@@ -104,26 +105,6 @@ namespace XML_Converter
                     string line;
                     System.IO.StreamReader file = new System.IO.StreamReader(@dir);
 
-                    string format = "yyyy-MM-dd HH:mm:ss";
-                    var date = File.ReadLines(@dir).First();
-                    var endLine = File.ReadLines(@dir).Last();
-
-                    try
-                    {
-                        DateTime dt = DateTime.ParseExact(date, format, CultureInfo.InvariantCulture);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine($"WARNING: First line is not in the correct format.");
-                        Warnings = true;
-                    }
-
-                    if (endLine.Contains("Datensaetze:") == false)
-                    {
-                        Console.WriteLine($"WARNING: Last line is not in the correct format.");
-                        Warnings = true;
-                    }
-
                     // create Xml File
                     var name = DataFileName.Replace(".txt", "");
                     FileName = name + ".xml";
@@ -135,9 +116,26 @@ namespace XML_Converter
 
                     xmlWriter.WriteStartElement("table");
                     xmlWriter.WriteAttributeString("name", name);
+                    var endLine = "";
 
                     while ((line = file.ReadLine()) != null)
                     {
+                        endLine = line;
+                        if (lines == 1)
+                        {
+                            string format = "yyyy-MM-dd HH:mm:ss";
+
+                            try
+                            {
+                                DateTime dt = DateTime.ParseExact(line, format, CultureInfo.InvariantCulture);
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine($"WARNING: First line is not in the correct format.");
+                                Warnings = true;
+                            }
+                        }
+
                         var arr = line.Split('|');
 
                         if (arr.Length > 1)
@@ -189,8 +187,14 @@ namespace XML_Converter
                                 }
                             }
                             xmlWriter.WriteEndElement();
-                            lines++;
-                        }
+                            
+                        }lines++;
+                    }
+
+                    if (endLine.Contains("Datensaetze:") == false)
+                    {
+                        Console.WriteLine($"WARNING: Last line is not in the correct format.");
+                        Warnings = true;
                     }
 
                     xmlWriter.WriteEndElement();
@@ -205,6 +209,11 @@ namespace XML_Converter
                 stopWatch.Stop();
                 var sec = stopWatch.Elapsed;
 
+                foreach (var item in unknownTag)
+                {
+                    Console.WriteLine($"WARNING: Unknown tag {item.Key}, found {item.Value} times.");
+                }
+
                 Console.WriteLine($"{lines} lines processed in {Math.Round(sec.TotalSeconds, 2)} seconds  Input file size: {ConvertSize(InputLength)}  Output file size: {ConvertSize(OutputLength)}");
                 File.Delete(dir);
             }
@@ -212,12 +221,7 @@ namespace XML_Converter
             var EndTime = DateTime.Now;
             TimeSpan span = (EndTime - StartTime);
 
-            foreach (var item in unknownTag)
-            {
-                Console.WriteLine($"WARNING: Unknown tag {item.Key}, found {item.Value} times.");
-            }
-
-            Console.WriteLine($"\nEnd time:{EndTime.ToString("HH:mm:ss")}Files {files} processed in {span.Minutes} min {span.Seconds} seconds");
+            Console.WriteLine($"{files} files processed in {span.Minutes} min {span.Seconds} seconds\nEnd time:{EndTime.ToString("HH:mm:ss")}");
 
             if (!Warnings)
             {
@@ -231,7 +235,7 @@ namespace XML_Converter
         {   
             if (ConvertBytesToMegabytes(bytes) < 0.99)
             {
-                return $"{ConvertBytesToKigabytes(bytes)} KB";
+                return $"{ConvertBytesToKilobytes(bytes)} KB";
             }
             if (ConvertBytesToGigabytes(bytes) < 0.99)
             {
@@ -241,7 +245,7 @@ namespace XML_Converter
             return $"{ConvertBytesToGigabytes(bytes)} GB";
         }
 
-        static double ConvertBytesToKigabytes(long bytes)
+        static double ConvertBytesToKilobytes(long bytes)
         {
             return Math.Round((bytes / 1024f), 2);
         }
