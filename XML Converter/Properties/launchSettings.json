@@ -1,8 +1,9 @@
 {
   "profiles": {
     "XML Converter": {
-      "commandName": "Project",
-      "commandLineArgs": "/c ..\\..\\..\\..\\data-config.txt /i D:\\NIKE\\Stazhant\\Premium_F_2020_07_03.zip /o ..\\..\\..\\..\\data"
+      "commandName": "Executable",
+      "executablePath": "D:\\Plami\\Programming\\Programs\\Created\\C#\\XML Converter\\XML Converter\\bin\\Debug\\netcoreapp3.0\\XML Converter.exe",
+      "commandLineArgs": "/config C:\\Users\\User\\Desktop\\data-config.txt /input C:\\Users\\User\\Desktop\\workdir.zip"
     }
   }
 }

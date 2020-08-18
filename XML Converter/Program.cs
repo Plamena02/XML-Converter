@@ -33,11 +33,13 @@ namespace XML_Converter
             if (paramControl.NeedHelp())
             {
                 paramControl.ShowHelp();
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_NO_PARAMETERS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_NO_PARAMETERS)})");
                 return (int)ExitCode.EXIT_NO_PARAMETERS;
             }
 
             if (!paramControl.LoadParameters())
             {
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_NO_PARAMETERS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_NO_PARAMETERS)})");
                 return (int)ExitCode.EXIT_NO_PARAMETERS;
             }
 
@@ -45,6 +47,7 @@ namespace XML_Converter
             TagStore tagStore = new TagStore(config);
             if (tagStore.LoadFile() == false)
             {
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
@@ -53,6 +56,7 @@ namespace XML_Converter
 
             if (!(File.Exists(@archive)) || !(Directory.Exists(@workdir)))
             {
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
@@ -62,11 +66,12 @@ namespace XML_Converter
             if (CheckForFreeSpace(@archive, disk) == false)
             {
                 Console.WriteLine($"There is not enough space on the drive ({disk}).");
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_ERROR} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_ERROR)})");
                 return (int)ExitCode.EXIT_ERROR;
             }
 
             var StartTime = DateTime.Now;
-            Console.WriteLine($"Config name:{config} {Path.GetFileName(config)}\nInput file name:{archive} {Path.GetFileName(archive)}\nOutput directory:{workdir}\nStart Time:{ StartTime.ToString("HH:mm:ss") }");
+            Console.WriteLine($"Start Time: { StartTime.ToString("HH:mm:ss") }\n\tConfig name: {config}\n\tInput file name: {archive}\n\tOutput directory: {workdir}\n");
 
             Stopwatch stopWatch1 = new Stopwatch();
             stopWatch1.Start();
@@ -77,7 +82,7 @@ namespace XML_Converter
 
             stopWatch1.Stop();
             var seconds = stopWatch1.Elapsed;
-            Console.WriteLine($"The {dirs.Length} files were unzipped in {Math.Round(seconds.TotalSeconds, 2)} seconds");
+            Console.WriteLine($"The {dirs.Length} files were unzipped in {Math.Round(seconds.TotalSeconds, 2)} seconds\n");
 
             foreach (string dir in dirs)
             {
@@ -90,6 +95,7 @@ namespace XML_Converter
                 if (ServiceAbilityCheck(dir) == false)
                 {
                     Console.WriteLine($"File {dir} does not exist or is not in correct format.");
+                    Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                     return (int)ExitCode.EXIT_INVALID_FILES;
                 }
                 else
@@ -209,25 +215,27 @@ namespace XML_Converter
                 stopWatch.Stop();
                 var sec = stopWatch.Elapsed;
 
+                Console.WriteLine($"{FileName} {lines} lines processed in {Math.Round(sec.TotalSeconds, 2)} seconds  Input file size: {ConvertSize(InputLength)}  Output file size: {ConvertSize(OutputLength)}");
                 foreach (var item in unknownTag)
                 {
-                    Console.WriteLine($"WARNING: Unknown tag {item.Key}, found {item.Value} times.");
+                    Console.WriteLine($"\tWARNING: Unknown tag {item.Key}, found {item.Value} times.");
                 }
 
-                Console.WriteLine($"{lines} lines processed in {Math.Round(sec.TotalSeconds, 2)} seconds  Input file size: {ConvertSize(InputLength)}  Output file size: {ConvertSize(OutputLength)}");
                 File.Delete(dir);
             }
 
             var EndTime = DateTime.Now;
             TimeSpan span = (EndTime - StartTime);
 
-            Console.WriteLine($"{files} files processed in {span.Minutes} min {span.Seconds} seconds\nEnd time:{EndTime.ToString("HH:mm:ss")}");
+            Console.WriteLine($"\n{files} files processed in {span.Minutes} min {span.Seconds} seconds\nEnd time:{EndTime.ToString("HH:mm:ss")}");
 
             if (!Warnings)
             {
+                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_OK} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_OK)})");
                 return (int)ExitCode.EXIT_OK;
             }
 
+            Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_WARNINGS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_WARNINGS)})");
             return (int)ExitCode.EXIT_WARNINGS;
         }
 
