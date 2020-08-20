@@ -28,18 +28,23 @@ namespace XML_Converter
 
         static int Main(string[] args)
         {
+            int code = MainProcessing(args);
+            Console.WriteLine($"\nExit Code: {code} ({Enum.GetName(typeof(ExitCode), code)})");
+            return code;
+        }
+
+        static int MainProcessing(string[] args)
+        {
 
             Controller paramControl = new Controller(args);
             if (paramControl.NeedHelp())
             {
                 paramControl.ShowHelp();
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_NO_PARAMETERS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_NO_PARAMETERS)})");
                 return (int)ExitCode.EXIT_NO_PARAMETERS;
             }
 
             if (!paramControl.LoadParameters())
             {
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_NO_PARAMETERS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_NO_PARAMETERS)})");
                 return (int)ExitCode.EXIT_NO_PARAMETERS;
             }
 
@@ -47,7 +52,6 @@ namespace XML_Converter
             TagStore tagStore = new TagStore(config);
             if (tagStore.LoadFile() == false)
             {
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
@@ -56,7 +60,6 @@ namespace XML_Converter
 
             if (!(File.Exists(@archive)) || !(Directory.Exists(@workdir)))
             {
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                 return (int)ExitCode.EXIT_INVALID_FILES;
             }
 
@@ -66,12 +69,11 @@ namespace XML_Converter
             if (CheckForFreeSpace(@archive, disk) == false)
             {
                 Console.WriteLine($"There is not enough space on the drive ({disk}).");
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_ERROR} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_ERROR)})");
                 return (int)ExitCode.EXIT_ERROR;
             }
 
             var StartTime = DateTime.Now;
-            Console.WriteLine($"Start Time: { StartTime.ToString("HH:mm:ss") }\n\tConfig name: {config}\n\tInput file name: {archive}\n\tOutput directory: {workdir}\n");
+            Console.WriteLine($"Start Time: { StartTime.ToString("HH:mm:ss") }\n\tConfig name: {Path.GetFullPath(config)}\n\tInput file name: {Path.GetFullPath(archive)}\n\tOutput directory: {Path.GetFullPath(workdir)}\n");
 
             Stopwatch stopWatch1 = new Stopwatch();
             stopWatch1.Start();
@@ -95,7 +97,6 @@ namespace XML_Converter
                 if (ServiceAbilityCheck(dir) == false)
                 {
                     Console.WriteLine($"File {dir} does not exist or is not in correct format.");
-                    Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_INVALID_FILES} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_INVALID_FILES)})");
                     return (int)ExitCode.EXIT_INVALID_FILES;
                 }
                 else
@@ -231,11 +232,9 @@ namespace XML_Converter
 
             if (!Warnings)
             {
-                Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_OK} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_OK)})");
                 return (int)ExitCode.EXIT_OK;
             }
 
-            Console.WriteLine($"\nExit Code: {(int)ExitCode.EXIT_WARNINGS} ({Enum.GetName(typeof(ExitCode), (int)ExitCode.EXIT_WARNINGS)})");
             return (int)ExitCode.EXIT_WARNINGS;
         }
 
